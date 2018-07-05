@@ -14,10 +14,10 @@
 				;13	typedef	short			s16;
 				;14	typedef	unsigned long	u32;
 				;15	typedef	long			s32;
-				;16	u8 *ptr,ScanCode,Buffer[4];	
+				;16	
 				;17	void Delay100us(u16);							//函式原型宣告		 
 				;18	void main()
-				;19	{	s16 temp,Index=100;
+				;19	{	s16 temp,Index=0;
 				@code .SECTION 'CODE'
 				include HT66F70A.inc
 0000	1F0B	clr     BP
@@ -28,9 +28,6 @@
 0002	0F00	mov     a, 0H
 0003	008B	mov     BP, a
 0004	282C	jmp     _main
-0044	0F64	mov     a, 64H
-0045	4081	mov     rb, a
-0046	5F02	clr     rc
 				;20		_wdtc=0b10101111;							//關閉看們狗計時器
 				_main:
 				_main:
@@ -65,58 +62,59 @@
 0042	31D1	set     T2ON
 0043	3030	set     EMI
 				;29		while(1)
-				;30		{	temp=Index*20+500;						//轉換為佔空比參數
+				;30		{	temp=Index*20+1000;						//轉換為佔空比參數
 				_L8:
-0047	4701	mov     a, rb
-0048	4083	mov     del, a
-0049	4702	mov     a, rc
-004A	4084	mov     del[1], a
-004B	0F14	mov     a, 14H
-004C	4085	mov     del[2], a
-004D	5F06	clr     del[3]
-004E	2019	call    L0019
-004F	4707	mov     a, del[4]
-0050	4081	mov     rb, a
-0051	4708	mov     a, del[5]
-0052	4082	mov     rc, a
-0053	0FF4	mov     a, F4H
-0054	4381	addm    a, rb
-0055	0F01	mov     a, 1H
-0056	5382	adcm    a, rc
+0046	4701	mov     a, rb
+0047	4083	mov     del, a
+0048	4702	mov     a, rc
+0049	4084	mov     del[1], a
+004A	0F14	mov     a, 14H
+004B	4085	mov     del[2], a
+004C	5F06	clr     del[3]
+004D	2019	call    L0019
+004E	4707	mov     a, del[4]
+004F	4081	mov     rb, a
+0050	4708	mov     a, del[5]
+0051	4082	mov     rc, a
+0052	0FE8	mov     a, E8H
+0053	4381	addm    a, rb
+0054	0F03	mov     a, 3H
+0055	5382	adcm    a, rc
 				;31			_tm2al=temp%256;						//設定佔空比參數
-0057	4701	mov     a, rb
-0058	0EFC	and     a, FCH
-0059	00D5	mov     TM2AL, a
+0056	4701	mov     a, rb
+0057	0EF8	and     a, F8H
+0058	00D5	mov     TM2AL, a
 				;32			_tm2ah=temp/256;					
-005A	4702	mov     a, rc
-005B	00D6	mov     TM2AH, a
+0059	4702	mov     a, rc
+005A	00D6	mov     TM2AH, a
 				;33			temp>>=1;								//轉換為Ton時間
 				;34			Delay100us(12);						//延遲120ms
-005C	0F0C	mov     a, CH
-005D	4083	mov     del, a
-005E	5F04	clr     del[1]
-005F	2005	call    _Delay100us
+005B	0F0C	mov     a, CH
+005C	4083	mov     del, a
+005D	5F04	clr     del[1]
+005E	2005	call    _Delay100us
 				;35			while(1)
 				;36			{	if(!SW_DutyUp)
 				_L10:
-0060	3F22	sz      PE6
-0061	2866	jmp     _L13
+005F	3F22	sz      PE6
+0060	2865	jmp     _L13
 				;37				{	Index=200;		//若按下遞增鍵,指標遞增(上限200) 
-0062	0FC8	mov     a, C8H
-0063	4081	mov     rb, a
-0064	5F02	clr     rc
-0065	2847	jmp     _L8
+0061	0FC8	mov     a, C8H
+0062	4081	mov     rb, a
+0063	5F02	clr     rc
+0064	2846	jmp     _L8
 				;38					break;   	
 				;39				}
 				;40				if(!SW_DutyDn) 						//若按下遞減鍵,指標遞減(下限0) 
 				_L13:
-0066	3FA2	sz      PE7
-0067	2860	jmp     _L10
+0065	3FA2	sz      PE7
+0066	285F	jmp     _L10
+0067	2844	jmp     _L12
+0068	2868	jmp     $
 				;41				{	Index=0;
-0068	5F01	clr     rb
-0069	5F02	clr     rc
-006A	2847	jmp     _L8
-006B	286B	jmp     $
+				_L12:
+0044	5F01	clr     rb
+0045	5F02	clr     rc
 				;42					break;   	
 				;43				}
 				;44			}
@@ -124,10 +122,7 @@
 				;46	}
 				;47	void Delay100us(u16 del)						//延遲del*200指令週期
 				;48	{	u16 i,j;									//@fSYS=8MH,延遲del*100us
-				;49	
-				;50	
-				;51	
-				;52		for(i=0;i<del;i++)
+				;49		for(i=0;i<del;i++)
 				_Delay100us:
 				_Delay100us:
 0005	5F01	clr     rb
@@ -168,7 +163,7 @@
 0029	390A	snz     Z
 002A	281B	jmp     L001B
 002B	0003	ret
-				;53			for(j=0;j<=25;j++) GCC_NOP();
+				;50			for(j=0;j<=25;j++) GCC_NOP();
 				_L5:
 000E	0000	nop
 000F	5480	inc     ra
@@ -176,7 +171,7 @@
 0011	0A1A	sub     a, 1AH
 0012	390A	snz     Z
 0013	280E	jmp     _L5
-				;54	}
+				;51	}
 				data .SECTION 'DATA'
 				__pepu DB DUP (?) ; __pepu
 				__pe DB DUP (?) ; __pe
@@ -195,8 +190,5 @@
 				rb DB DUP (?)
 				rc DB DUP (?)
 				del DB 2 DUP (?) ; del
-				Buffer DB DUP (?) ; Buffer
-				ScanCode DB DUP (?) ; ScanCode
-				ptr DB DUP (?) ; ptr
 				__pcs1 DB DUP (?) ; __pcs1
 				__pcs2 DB DUP (?) ; __pcs2

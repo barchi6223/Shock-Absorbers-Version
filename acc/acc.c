@@ -13,10 +13,10 @@ typedef	unsigned short	u16;
 typedef	short			s16;
 typedef	unsigned long	u32;
 typedef	long			s32;
-u8 *ptr,ScanCode,Buffer[4];	
+
 void Delay100us(u16);							//函式原型宣告		 
 void main()
-{	s16 temp,Index=100;
+{	s16 temp,Index=0;
 	_wdtc=0b10101111;							//關閉看們狗計時器
 	SW_DutyUpC=1; SW_DutyUpPU=1;			   	//規劃按鍵腳位為輸入屬性並啟用提升電阻
 	SW_DutyDnC=1; SW_DutyDnPU=1;		   	
@@ -27,7 +27,7 @@ void main()
 	_tm2rp=160;									//週期=256*160*0.5us=20.48ms
 	_t2on=1; _emi=1;							//起始TM1計數並致能EMI
 	while(1)
-	{	temp=Index*20+500;						//轉換為佔空比參數
+	{	temp=Index*20+1000;						//轉換為佔空比參數
 		_tm2al=temp%256;						//設定佔空比參數
 		_tm2ah=temp/256;					
 		temp>>=1;								//轉換為Ton時間
@@ -46,9 +46,6 @@ void main()
 }
 void Delay100us(u16 del)						//延遲del*200指令週期
 {	u16 i,j;									//@fSYS=8MH,延遲del*100us
-
-
-
 	for(i=0;i<del;i++)
 		for(j=0;j<=25;j++) GCC_NOP();
 }
