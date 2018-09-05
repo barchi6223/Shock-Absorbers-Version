@@ -60,6 +60,9 @@ float q_bias, angle_err, PCt_0, PCt_1, E, K_0, K_1, t_0, t_1;
 float timeChange = 5; //滤波法采样时间间隔毫秒
 float dt = timeChange * 0.001; //注意：dt的取值为滤波器采样时间
 
+//////////////////////外部中斷控制變數//////////////////////
+int CtrlInti = 0;
+
 void setup() {
   Serial.begin(9600);
   //////////////////////設定開關跟按鈕//////////////////////
@@ -89,11 +92,13 @@ void setup() {
 
 //////////////////////外部中斷涵式//////////////////////
 void InteHall() {
+  CtrlInti = 1;
   if (SendX > 1000) {
     MotorCmd(2);
     NowMode = 5;
     delay(1000);
   }
+  CtrlInti = 0;
 }
 
 //////////////////////霍爾陣列初始化完放五個元素//////////////////////
@@ -280,15 +285,15 @@ void BluetoothSendData() {
 
 //////////////////////模式選擇//////////////////////
 void NowModeSwitch() {
-  if (SendZ > 1000 && SendHall <= 20) {
+  if (SendZ > 500 && SendHall <= 5 && CtrlInti == 0) {
     MotorCmd(6);
     NowMode = 4;
-    delay(2000);
-  } else if (angle > 43) {
+    delay(1000);
+  } else if (angle > 43 && SendHall >= 5 && CtrlInti == 0) {
     MotorCmd(2);
     NowMode = 3;
     delay(1000);
-  } else if (SendZ > 400 && SendHall > 10) {
+  } else if (SendZ > 400 && SendHall > 10 && CtrlInti == 0) {
     if (SendHall > 10) {
       MotorCmd(3);
       NowMode = 2;
@@ -297,16 +302,16 @@ void NowModeSwitch() {
       MotorCmd(4);
       NowMode = 2;
       delay(500);
-    }else if(SendHall>50){
+    } else if (SendHall > 50) {
       MotorCmd(5);
       NowMode = 2;
       delay(500);
     }
-  } else if (SendX > 1000) {
+  } else if (SendX > 1000 && CtrlInti == 0) {
     MotorCmd(1);
     NowMode = 1;
     delay(2000);
-  } else if (SendX <= 1000) {
+  } else if (SendX <= 1000 && CtrlInti == 0) {
     MotorCmd(1);
     NowMode = 1;
     delay(500);
